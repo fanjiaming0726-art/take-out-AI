@@ -61,7 +61,7 @@ public class DishServiceImpl implements DishService {
 
             rows = dishMapper.deductStock(dishId,count,dish.getVersion());
             if(rows == 0){
-                throw new RuntimeException(dish.getName() + "库存不足，剩余：" + dish.getStock());
+                throw new RuntimeException("系统繁忙，请稍后再试");
             }
         }
     }
