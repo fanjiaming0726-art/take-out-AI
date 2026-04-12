@@ -32,4 +32,15 @@ public class SellerSeckillController {
             return Result.fail(e.getMessage());
         }
     }
+
+    @LoginRequired("EMPLOYEE")
+    @PostMapping("/create")
+    public Result<String> create(@RequestBody SeckillActivity activity) {
+        try {
+            seckillService.createActivity(activity);
+            return Result.success("秒杀活动创建成功，库存已从菜品划拨");
+        } catch (RuntimeException e) {
+            return Result.fail(e.getMessage());
+        }
+    }
 }

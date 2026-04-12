@@ -9,4 +9,5 @@ public interface SeckillService {
     int trySeckill(Long activityId, Long userId);
     List<SeckillActivity> listActivities();
     SeckillActivity findById(Long id);
+    void createActivity(SeckillActivity activity);
 }
