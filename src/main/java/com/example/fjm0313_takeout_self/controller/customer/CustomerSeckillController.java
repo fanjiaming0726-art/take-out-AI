@@ -5,7 +5,9 @@ import com.example.fjm0313_takeout_self.common.MQ.SeckillMessage;
 import com.example.fjm0313_takeout_self.common.MQ.SeckillOrderSender;
 import com.example.fjm0313_takeout_self.common.Result;
 import com.example.fjm0313_takeout_self.common.UserContext;
+import com.example.fjm0313_takeout_self.entity.AddressBook;
 import com.example.fjm0313_takeout_self.entity.SeckillActivity;
+import com.example.fjm0313_takeout_self.service.AddressBookService;
 import com.example.fjm0313_takeout_self.service.SeckillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/customer/seckill")
 public class CustomerSeckillController {
+
+    @Autowired
+    private AddressBookService addressBookService;
 
     @Autowired
     private SeckillService seckillService;
@@ -33,6 +38,12 @@ public class CustomerSeckillController {
     @PostMapping("/rush/{activityId}")
     public Result<String> rush(@PathVariable Long activityId) {
         Long userId = UserContext.getUserId();
+
+        AddressBook addressBook = addressBookService.findDefaultByUserId(userId);
+        if(addressBook == null){
+            return Result.fail("还没有填写地址哦");
+        }
+
         int result = seckillService.trySeckill(activityId, userId);
 
         if (result == 0) {

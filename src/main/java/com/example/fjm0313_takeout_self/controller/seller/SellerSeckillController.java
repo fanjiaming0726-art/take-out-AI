@@ -22,16 +22,7 @@ public class SellerSeckillController {
         return Result.success(seckillService.listActivities());
     }
 
-    @LoginRequired("EMPLOYEE")
-    @PostMapping("/load/{id}")
-    public Result<String> load(@PathVariable Long id) {
-        try {
-            seckillService.loadActivityToRedis(id);
-            return Result.success("活动库存已加载到 Redis");
-        } catch (RuntimeException e) {
-            return Result.fail(e.getMessage());
-        }
-    }
+
 
     @LoginRequired("EMPLOYEE")
     @PostMapping("/create")

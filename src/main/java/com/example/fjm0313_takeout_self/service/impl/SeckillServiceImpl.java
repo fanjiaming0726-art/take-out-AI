@@ -88,5 +88,7 @@ public class SeckillServiceImpl implements SeckillService {
         // 2. 保存秒杀活动
         activity.setStatus(0); // 未开始
         seckillActivityMapper.insert(activity);
+
+        loadActivityToRedis(activity.getId());
     }
 }
