@@ -54,6 +54,28 @@ public class CustomerOrderController {
         return Result.success(ordersVOList);
     }
 
+    @LoginRequired("CUSTOMER")
+    @PutMapping("/pay/{id}")
+    public Result<String> pay(@PathVariable Long id) {
+        try {
+            Long userId = UserContext.getUserId();
+            Orders order = ordersService.findById(id);
+            if (order == null) {
+                return Result.fail("订单不存在");
+            }
+            if (!order.getUserId().equals(userId)) {
+                return Result.fail("无权操作此订单");
+            }
+            if (order.getStatus() != 0) {
+                return Result.fail("订单状态不正确，无法支付");
+            }
+            ordersService.updateStatus(id, 1);
+            return Result.success("支付成功");
+        } catch (RuntimeException e) {
+            return Result.fail(e.getMessage());
+        }
+    }
+
 
     
 

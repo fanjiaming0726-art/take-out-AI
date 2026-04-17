@@ -37,7 +37,7 @@ public class Orders implements Serializable {
     private String phone;
 
 
-    // 订单状态I（0 未支付/1 已支付）
+    // 订单状态I（0 未支付/1 已支付/2 已接单/3 配送中/4 已完成/5 已取消）
     private Integer status;
 
     private LocalDateTime checkoutTime;

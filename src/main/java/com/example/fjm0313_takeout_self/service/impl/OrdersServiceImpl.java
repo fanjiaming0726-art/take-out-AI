@@ -95,7 +95,7 @@ public class OrdersServiceImpl implements OrdersService {
         // 5. 构建订单
         Orders orders = new Orders();
         orders.setNumber(UUID.randomUUID().toString().replace("-", ""));
-        orders.setStatus(1);  // 待接单
+        orders.setStatus(0);  // 未支付
         orders.setUserId(userId);
         orders.setUsername(user.getUsername());
         orders.setConsignee(addressBook.getConsignee());
@@ -145,6 +145,11 @@ public class OrdersServiceImpl implements OrdersService {
         }
         orders.setStatus(status);
         ordersMapper.updateById(orders);
+    }
+
+    @Override
+    public Orders findById(Long id) {
+        return ordersMapper.selectById(id);
     }
 
 
