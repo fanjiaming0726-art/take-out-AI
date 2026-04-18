@@ -82,4 +82,11 @@ public class DishServiceImpl implements DishService {
         // 库存变了，删除缓存
         redisTemplate.delete(DISH_LIST_KEY);
     }
+
+
+    @Override
+    public void restoreStock(Long dishId, int count) {
+        dishMapper.restoreStock(dishId, count);
+        redisTemplate.delete(DISH_LIST_KEY);
+    }
 }

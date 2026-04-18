@@ -40,6 +40,9 @@ public class SeckillOrderConsumer {
     @Autowired
     private RankingService rankingService;
 
+    @Autowired
+    private OrderTimeoutSender orderTimeoutSender;
+
     @RabbitListener(queues = RabbitMQConfig.SECKILL_ORDER_QUEUE)
     @Transactional
     public void handleSeckillOrder(SeckillMessage message) {
@@ -71,7 +74,7 @@ public class SeckillOrderConsumer {
             seckillOrder.setDishName(activity.getDishName());
             seckillOrder.setSeckillPrice(activity.getSeckillPrice());
             seckillOrder.setOrderNumber(UUID.randomUUID().toString().replace("-", ""));
-            seckillOrder.setStatus(1);
+            seckillOrder.setStatus(0);  // 改为未支付，之前是1
 
             if (addressBook != null) {
                 seckillOrder.setConsignee(addressBook.getConsignee());
@@ -85,6 +88,8 @@ public class SeckillOrderConsumer {
 
             seckillOrderMapper.insert(seckillOrder);
 
+            // 发送延迟消息
+            orderTimeoutSender.sendOrderTimeoutMessage(seckillOrder.getId(), "SECKILL");
             // 5. 更新排行榜
             rankingService.increaseSales(activity.getDishId(), activity.getDishName(), 1);
 
