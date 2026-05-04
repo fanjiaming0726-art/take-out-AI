@@ -1,7 +1,8 @@
 package com.example.fjm0313_takeout_self.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.example.fjm0313_takeout_self.common.MQ.OrderTimeoutSender;
+import com.example.fjm0313_takeout_self.common.MQ.sender.OrderNotifySender;
+import com.example.fjm0313_takeout_self.common.MQ.sender.OrderTimeoutSender;
 import com.example.fjm0313_takeout_self.entity.*;
 import com.example.fjm0313_takeout_self.mapper.*;
 import com.example.fjm0313_takeout_self.service.DishService;
@@ -10,6 +11,10 @@ import com.example.fjm0313_takeout_self.service.RankingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.fjm0313_takeout_self.common.MQ.message.OrderNotifyMessage;
+import com.example.fjm0313_takeout_self.common.MQ.sender.OrderNotifySender;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,6 +22,9 @@ import java.util.UUID;
 
 @Service
 public class OrdersServiceImpl implements OrdersService {
+
+    @Autowired
+    private OrderNotifySender orderNotifySender;
 
     @Autowired
     private OrderTimeoutSender orderTimeoutSender;
@@ -140,6 +148,26 @@ public class OrdersServiceImpl implements OrdersService {
 
         // 7. 清空购物车
         cartMapper.delete(cartWrapper);
+
+        OrderNotifyMessage notifyMessage = new OrderNotifyMessage();
+        notifyMessage.setOrderId(orders.getId());
+        notifyMessage.setOrderNumber(orders.getNumber());
+        notifyMessage.setUserId(orders.getUserId());
+        notifyMessage.setUsername(orders.getUsername());
+        notifyMessage.setAmount(orders.getAmount());
+        notifyMessage.setConsignee(orders.getConsignee());
+        notifyMessage.setPhone(orders.getPhone());
+        notifyMessage.setAddress(orders.getAddress());
+        notifyMessage.setRemark(orders.getRemark());
+
+
+        // 这是个事务生命周期监听器，等到当前事务执行成功后执行afterCommit方法
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                    orderNotifySender.sendNewOrderMessage(notifyMessage);
+            }
+        });
 
         return orders;
     }
