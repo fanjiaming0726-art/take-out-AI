@@ -1,8 +1,11 @@
 package com.example.fjm0313_takeout_self.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.example.fjm0313_takeout_self.common.MQ.message.OrderNotifyMessage;
 import com.example.fjm0313_takeout_self.common.MQ.sender.OrderNotifySender;
 import com.example.fjm0313_takeout_self.common.MQ.sender.OrderTimeoutSender;
+import com.example.fjm0313_takeout_self.common.Result;
+import com.example.fjm0313_takeout_self.common.UserContext;
 import com.example.fjm0313_takeout_self.entity.*;
 import com.example.fjm0313_takeout_self.mapper.*;
 import com.example.fjm0313_takeout_self.service.DishService;
@@ -11,10 +14,9 @@ import com.example.fjm0313_takeout_self.service.RankingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.fjm0313_takeout_self.common.MQ.message.OrderNotifyMessage;
-import com.example.fjm0313_takeout_self.common.MQ.sender.OrderNotifySender;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -149,25 +151,7 @@ public class OrdersServiceImpl implements OrdersService {
         // 7. 清空购物车
         cartMapper.delete(cartWrapper);
 
-        OrderNotifyMessage notifyMessage = new OrderNotifyMessage();
-        notifyMessage.setOrderId(orders.getId());
-        notifyMessage.setOrderNumber(orders.getNumber());
-        notifyMessage.setUserId(orders.getUserId());
-        notifyMessage.setUsername(orders.getUsername());
-        notifyMessage.setAmount(orders.getAmount());
-        notifyMessage.setConsignee(orders.getConsignee());
-        notifyMessage.setPhone(orders.getPhone());
-        notifyMessage.setAddress(orders.getAddress());
-        notifyMessage.setRemark(orders.getRemark());
 
-
-        // 这是个事务生命周期监听器，等到当前事务执行成功后执行afterCommit方法
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                    orderNotifySender.sendNewOrderMessage(notifyMessage);
-            }
-        });
 
         return orders;
     }
@@ -185,6 +169,49 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public Orders findById(Long id) {
         return ordersMapper.selectById(id);
+    }
+
+    @Override
+    @Transactional
+    public String pay(Long id) {
+        try {
+            Long userId = UserContext.getUserId();
+            Orders order = findById(id);
+            if (order == null) {
+                return "订单不存在";
+            }
+            if (!order.getUserId().equals(userId)) {
+                return "无权操作此订单";
+            }
+            if (order.getStatus() != 0) {
+                return "订单状态不正确，无法支付";
+            }
+
+            order.setStatus(1);
+            ordersMapper.updateById(order);
+
+            OrderNotifyMessage notifyMessage = new OrderNotifyMessage();
+            notifyMessage.setOrderId(order.getId());
+            notifyMessage.setOrderNumber(order.getNumber());
+            notifyMessage.setUserId(order.getUserId());
+            notifyMessage.setUsername(order.getUsername());
+            notifyMessage.setAmount(order.getAmount());
+            notifyMessage.setConsignee(order.getConsignee());
+            notifyMessage.setPhone(order.getPhone());
+            notifyMessage.setAddress(order.getAddress());
+            notifyMessage.setRemark(order.getRemark());
+
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    orderNotifySender.sendNewOrderMessage(notifyMessage);
+                }
+            });
+
+            return "支付成功";
+        } catch (RuntimeException e) {
+            return e.getMessage();
+        }
     }
 
 

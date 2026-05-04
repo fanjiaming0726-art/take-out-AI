@@ -13,4 +13,5 @@ public interface OrdersService {
     Orders submitOrder(Long userId,Long addressBookId,String remark);
     void updateStatus(Long orderId, Integer status);
     Orders findById(Long id);
+    String pay(Long id);
 }

@@ -2,6 +2,7 @@ package com.example.fjm0313_takeout_self.controller.customer;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.fjm0313_takeout_self.common.LoginRequired;
+import com.example.fjm0313_takeout_self.common.MQ.message.OrderNotifyMessage;
 import com.example.fjm0313_takeout_self.common.Result;
 import com.example.fjm0313_takeout_self.common.UserContext;
 import com.example.fjm0313_takeout_self.vo.OrdersVO;
@@ -9,6 +10,8 @@ import com.example.fjm0313_takeout_self.entity.*;
 import com.example.fjm0313_takeout_self.service.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -57,22 +60,11 @@ public class CustomerOrderController {
     @LoginRequired("CUSTOMER")
     @PutMapping("/pay/{id}")
     public Result<String> pay(@PathVariable Long id) {
-        try {
-            Long userId = UserContext.getUserId();
-            Orders order = ordersService.findById(id);
-            if (order == null) {
-                return Result.fail("订单不存在");
-            }
-            if (!order.getUserId().equals(userId)) {
-                return Result.fail("无权操作此订单");
-            }
-            if (order.getStatus() != 0) {
-                return Result.fail("订单状态不正确，无法支付");
-            }
-            ordersService.updateStatus(id, 1);
-            return Result.success("支付成功");
-        } catch (RuntimeException e) {
-            return Result.fail(e.getMessage());
+        String result = ordersService.pay(id);
+        if (result.equals("支付成功")){
+            return Result.success(result);
+        }else {
+            return Result.fail(result);
         }
     }
 
