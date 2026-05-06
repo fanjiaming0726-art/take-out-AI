@@ -11,6 +11,8 @@ spring:
       host: localhost
       database: 0
       port: 6379
+    mongodb:
+      uri: mongodb://localhost:27017/takeout_review
   rabbitmq:
     host: localhost
     port: 5672

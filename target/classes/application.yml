@@ -11,11 +11,15 @@ spring:
       host: localhost
       database: 0
       port: 6379
+    mongodb:
+      uri: mongodb://localhost:27017/takeout_review
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
+  elasticsearch:
+      uris: http://localhost:9200
 
 reggie:
   path: F:/takeout-web/images/
