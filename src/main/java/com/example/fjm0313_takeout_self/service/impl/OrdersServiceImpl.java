@@ -125,8 +125,7 @@ public class OrdersServiceImpl implements OrdersService {
 
         ordersMapper.insert(orders);
 
-        // 发送延迟消息，15分钟后检查是否支付
-        orderTimeoutSender.sendOrderTimeoutMessage(orders.getId(), "NORMAL");
+        Long orderId = orders.getId();
 
         // 6. 保存订单明细
         for (ShoppingCart cart : cartList) {
@@ -151,6 +150,12 @@ public class OrdersServiceImpl implements OrdersService {
         // 7. 清空购物车
         cartMapper.delete(cartWrapper);
 
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                orderTimeoutSender.sendOrderTimeoutMessage(orderId, "NORMAL");
+            }
+        });
 
 
         return orders;

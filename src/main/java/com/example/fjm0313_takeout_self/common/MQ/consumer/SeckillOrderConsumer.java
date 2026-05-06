@@ -98,6 +98,7 @@ public class SeckillOrderConsumer {
             System.out.println("秒杀订单创建成功，userId=" + userId + ", activityId=" + activityId);
         } catch (Exception e) {
             System.out.println("秒杀订单处理失败：" + e.getMessage());
+            throw e;
         }
     }
 }

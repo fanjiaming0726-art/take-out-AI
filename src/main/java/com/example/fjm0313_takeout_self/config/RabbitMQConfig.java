@@ -55,7 +55,7 @@ public class RabbitMQConfig {
     public static final String ORDER_DLX_ROUTING_KEY = "order.dlx";
 
 
-    // TTL：15分钟（毫秒）
+    // 测试：30秒
     public static final int ORDER_TTL = 30 * 1000;
 
     @Bean
