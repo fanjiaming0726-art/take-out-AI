@@ -24,6 +24,7 @@ public class SellerOrderController {
     private OrderDetailService orderDetailService;
 
     // 只放 sellerList 这个方法
+    @LoginRequired("EMPLOYEE")
     @GetMapping("/sellerList")
     public Result<List<OrdersVO>> sellerList(@RequestParam(required = false) Integer status ){
         List<Orders> ordersList = ordersService.findAll(status);
