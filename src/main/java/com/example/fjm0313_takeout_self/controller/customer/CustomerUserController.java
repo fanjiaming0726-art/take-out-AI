@@ -1,9 +1,9 @@
 package com.example.fjm0313_takeout_self.controller.customer;
 
 
-import com.example.fjm0313_takeout_self.common.LoginRequired;
-import com.example.fjm0313_takeout_self.common.Result;
-import com.example.fjm0313_takeout_self.common.UserContext;
+import com.example.common.annotation.LoginRequired;
+import com.example.common.result.Result;
+import com.example.common.context.UserContext;
 import com.example.fjm0313_takeout_self.entity.User;
 import com.example.fjm0313_takeout_self.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,6 +50,8 @@ public class CustomerUserController  {
 
     @PostMapping("/login")
     public Result<User> login(@RequestBody User user, HttpServletRequest request){
+
+
         String username = user.getUsername();
         User exitUser = userService.findByUsername(username);
         if(exitUser == null){
@@ -67,6 +69,9 @@ public class CustomerUserController  {
 
         request.getSession().setAttribute("userId",exitUser.getId());
         user.setPassword(null);
+
+
+
         return Result.success(user);
 
     }

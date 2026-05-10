@@ -2,7 +2,14 @@ server:
   port: 8081
 spring:
   application:
-    name: Fjm0313_takeout_self
+    # applicationName就是这个服务在nacos配置中心地的服务名
+    name: takeout-service
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/takeout_db?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&useSSL=false

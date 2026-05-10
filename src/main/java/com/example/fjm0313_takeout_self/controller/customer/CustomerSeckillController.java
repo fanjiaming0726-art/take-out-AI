@@ -1,10 +1,10 @@
 package com.example.fjm0313_takeout_self.controller.customer;
 
-import com.example.fjm0313_takeout_self.common.LoginRequired;
+import com.example.common.annotation.LoginRequired;
 import com.example.fjm0313_takeout_self.common.MQ.message.SeckillMessage;
 import com.example.fjm0313_takeout_self.common.MQ.sender.SeckillOrderSender;
-import com.example.fjm0313_takeout_self.common.Result;
-import com.example.fjm0313_takeout_self.common.UserContext;
+import com.example.common.result.Result;
+import com.example.common.context.UserContext;
 import com.example.fjm0313_takeout_self.entity.AddressBook;
 import com.example.fjm0313_takeout_self.entity.SeckillActivity;
 import com.example.fjm0313_takeout_self.service.AddressBookService;
